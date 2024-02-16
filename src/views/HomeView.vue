@@ -3,8 +3,8 @@
     <h1>Latihan Mengetik</h1>
     <div v-if="!isStarted">Klik "Mulai" untuk memulai tes mengetik.</div>
     <div v-else>
-      <span v-if="!isTimeUp">{{ currentPrompt }}</span> <br>
-      <input v-model="userInput" @input="checkTyping" @keyup.space="nextPrompt" :disabled="isTimeUp">
+      <p v-if="!isTimeUp" v-html="formattedPrompt"></p>
+      <input v-model="userInput" @input="checkTyping" @keyup.space="nextWord" :disabled="isTimeUp">
       <button @click="nextPrompt" :disabled="isTimeUp">Next</button>
       <p v-if="isTimeUp">Waktu Habis! Kecepatan Mengetik: {{ typingSpeed }} kata per menit</p>
       <p v-if="isStarted && !isTimeUp">Waktu Tersisa: {{ countdown }} detik</p>
@@ -17,9 +17,14 @@
 export default {
   data() {
     return {
-      prompts: ["besok", "untuk", "pensil", "kos", "oleh", "banyak", "boleh", "di", "sore"],
+      prompts: [
+        ["pensil", "rumah", "lemari", "kasur", "pintu", "kemana", "siapa", "bukan", "karena", "kamu", "di", "dan", "mereka", "tidak", "jatuh", "bawah"],
+        // Tambahkan prompts lain jika diperlukan
+      ],
       currentPromptIndex: 0,
-      currentPrompt: "",
+      currentPrompt: [],
+      currentWordIndex: 0,
+      howMuchWordType: 0,
       userInput: "",
       isStarted: false,
       isTimeUp: false,
@@ -30,16 +35,27 @@ export default {
       countdown: 60
     };
   },
+  computed: {
+    formattedPrompt() {
+      const wordsBeforeCurrent = this.currentPrompt.slice(0, this.currentWordIndex);
+      const wordsAfterCurrent = this.currentPrompt.slice(this.currentWordIndex + 1);
+      const currentWord = this.currentPrompt[this.currentWordIndex];
+
+      return [
+        ...wordsBeforeCurrent.map(word => `<span>${word}</span>`),
+        `<span style="color: red">${currentWord}</span>`,
+        ...wordsAfterCurrent.map(word => `<span>${word}</span>`)
+      ].join(' ');
+    }
+  },
   methods: {
     setNextPrompt() {
-      // Pilih prompt secara acak
-      const randomIndex = Math.floor(Math.random() * this.prompts.length);
-      this.currentPromptIndex = randomIndex;
-
-      this.currentPrompt = this.prompts[randomIndex];
+      this.currentPrompt = this.prompts[this.currentPromptIndex];
+      this.currentWordIndex = 0;
     },
     nextPrompt() {
       if (this.isStarted && !this.isTimeUp) {
+        this.currentPromptIndex = (this.currentPromptIndex + 1) % this.prompts.length;
         this.setNextPrompt();
         this.userInput = "";
         this.startTime = Date.now();
@@ -48,33 +64,49 @@ export default {
         this.typingSpeed = 0;
       }
     },
-    checkTyping() {
-      if (!this.startTime) {
-        this.startTime = Date.now();
-        this.startCountdown();
+    nextWord() {
+      if (this.isStarted && !this.isTimeUp) {
+        this.currentWordIndex = (this.currentWordIndex + 1) % this.currentPrompt.length;
+        this.userInput = "";  // Menambahkan perintah untuk mengosongkan input setelah menekan spasi
+        this.howMuchWordType++
       }
+    },
+    checkTyping() {
+      if (this.userInput.trim() === this.currentPrompt[this.currentWordIndex]) {
+        // Perbarui startTime sebelum pengguna mulai mengetik kata yang benar
+        if (!this.startTime) {
+          this.startTime = Date.now();
+        }
 
-      if (this.userInput === this.currentPrompt) {
+        // Perbarui endTime setelah pengguna mengetik kata yang benar
         this.endTime = Date.now();
-        const wordsTyped = this.userInput.trim().split(/\s+/).length;
-        const timeInSeconds = (this.endTime - this.startTime) / 1000; // Ubah ke detik
-        const timeInMinutes = timeInSeconds / 60; // Ubah ke menit
-        this.typingSpeed = Math.round(wordsTyped / timeInMinutes);
 
-        // Simpan WPM ke sessionStorage
+        const wordsTyped = this.userInput.trim().split(/\s+/).length;
+        const timeInSeconds = Math.max((this.endTime - this.startTime) / 1000, 0);
+        // const timeInMinutes = timeInSeconds / 60;
+        this.typingSpeed = Math.round((wordsTyped / 5) / (timeInSeconds / 60));
         sessionStorage.setItem('hasil', this.typingSpeed);
+        console.log("Typing Speed:", this.typingSpeed);
       } else {
         this.errorCount = this.calculateErrors();
-        sessionStorage.setItem('error', this.errorCount)
+        console.log(`Error: ${this.errorCount}`)
       }
     },
     calculateErrors() {
+      const currentWord = this.currentPrompt[this.currentWordIndex];
+      const userInputWord = this.userInput.trim();
+
       let errors = 0;
-      for (let i = 0; i < this.currentPrompt.length; i++) {
-        if (this.currentPrompt[i] !== this.userInput[i]) {
+      const minLength = Math.min(currentWord.length, userInputWord.length);
+
+      for (let i = 0; i < minLength; i++) {
+        if (currentWord[i] !== userInputWord[i]) {
           errors++;
         }
       }
+
+      errors += Math.abs(currentWord.length - userInputWord.length);
+
       return errors;
     },
     startTest() {
@@ -85,25 +117,30 @@ export default {
       this.setNextPrompt();
     },
     startCountdown() {
-      const countdownInterval = setInterval(() => {
-        this.countdown--;
-        if (this.countdown <= 0) {
-          this.userInput = ""
-          this.currentPrompt = ""
+      this.countdown = 60;
+
+      this.countdownInterval = setInterval(() => {
+        if (this.countdown > 0) {
+          this.countdown--;
+        } else {
           this.endTest();
-          clearInterval(countdownInterval);
+          clearInterval(this.countdownInterval);
         }
       }, 1000);
     },
+
     endTest() {
       this.isTimeUp = true;
       this.isStarted = false;
+      clearInterval(this.countdownInterval);
 
-      clearInterval(this.countdownInterval); // Hentikan interval countdown
+      // Menggunakan setTimeout untuk memberi waktu agar state terbarui sebelum alert muncul
+      setTimeout(() => {
+        alert(`Waktu Habis! Kecepatan Mengetik: ${this.howMuchWordType} kata per menit`);
+      }, 0);
+    },
 
-      alert(`Waktu Habis! Kecepatan Mengetik: ${sessionStorage.getItem("hasil")} kata per menit`);
-    }
-  }
+  },
 };
 </script>
 
