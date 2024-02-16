@@ -19,7 +19,6 @@ export default {
     return {
       prompts: [
         ["pensil", "rumah", "lemari", "kasur", "pintu", "kemana", "siapa", "bukan", "karena", "kamu", "di", "dan", "mereka", "tidak", "jatuh", "bawah"],
-        // Tambahkan prompts lain jika diperlukan
       ],
       currentPromptIndex: 0,
       currentPrompt: [],
@@ -67,31 +66,30 @@ export default {
     nextWord() {
       if (this.isStarted && !this.isTimeUp) {
         this.currentWordIndex = (this.currentWordIndex + 1) % this.currentPrompt.length;
-        this.userInput = "";  // Menambahkan perintah untuk mengosongkan input setelah menekan spasi
+        this.userInput = ""; 
         this.howMuchWordType++
       }
     },
-    checkTyping() {
-      if (this.userInput.trim() === this.currentPrompt[this.currentWordIndex]) {
-        // Perbarui startTime sebelum pengguna mulai mengetik kata yang benar
-        if (!this.startTime) {
-          this.startTime = Date.now();
-        }
+    // RUSAK RUSAK RUSAK
+    // checkTyping() {
+    //   if (this.userInput.trim() === this.currentPrompt[this.currentWordIndex]) {
+    //     if (!this.startTime) {
+    //       this.startTime = Date.now();
+    //     }
+    //     this.endTime = Date.now();
 
-        // Perbarui endTime setelah pengguna mengetik kata yang benar
-        this.endTime = Date.now();
-
-        const wordsTyped = this.userInput.trim().split(/\s+/).length;
-        const timeInSeconds = Math.max((this.endTime - this.startTime) / 1000, 0);
-        // const timeInMinutes = timeInSeconds / 60;
-        this.typingSpeed = Math.round((wordsTyped / 5) / (timeInSeconds / 60));
-        sessionStorage.setItem('hasil', this.typingSpeed);
-        console.log("Typing Speed:", this.typingSpeed);
-      } else {
-        this.errorCount = this.calculateErrors();
-        console.log(`Error: ${this.errorCount}`)
-      }
-    },
+    //     const wordsTyped = this.userInput.trim().split(/\s+/).length;
+    //     const timeInSeconds = Math.max((this.endTime - this.startTime) / 1000, 0);
+    //     // const timeInMinutes = timeInSeconds / 60;
+    //     this.typingSpeed = Math.round((wordsTyped / 5) / (timeInSeconds / 60));
+    //     sessionStorage.setItem('hasil', this.typingSpeed);
+    //     console.log("Typing Speed:", this.typingSpeed);
+    //   } else {
+    //     this.errorCount = this.calculateErrors();
+    //     console.log(`Error: ${this.errorCount}`)
+    //   }
+    // },
+    // RUSAK RUSAK RUSAK
     calculateErrors() {
       const currentWord = this.currentPrompt[this.currentWordIndex];
       const userInputWord = this.userInput.trim();
@@ -104,9 +102,7 @@ export default {
           errors++;
         }
       }
-
       errors += Math.abs(currentWord.length - userInputWord.length);
-
       return errors;
     },
     startTest() {
