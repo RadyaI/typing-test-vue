@@ -4,17 +4,19 @@
       <div class="wrapper">
         <div class="header">
           <h3>Latihan Mengetik</h3>
-          <h3>Mau masuk leaderboard? login dulu sini</h3>
-          <h3>About?</h3>
+          <h3 @click="login">Mau masuk leaderboard? login dulu sini</h3>
+          <h3 @click="about">About?</h3>
         </div>
         <div class="content">
           <div class="prompt">
             <div class="text">
-              <p v-html="formattedPrompt"></p>
+              <p v-if="this.countdown != 0" v-html="formattedPrompt"></p>
             </div>
             <div class="input-text">
-              <input class="text-form" v-model="userInput" @input="checkTyping" @keyup.space="nextWord">
-              <button class="btn-mulai" @click="startTest" :disabled="isStarted">Mulai</button>
+              <input class="text-form" v-model="userInput" v-if="isStarted" @keyup.space="nextWord"
+                placeholder="Ayo Ketikk.....">
+              <button class="btn-mulai" v-if="!isStarted" @click="startTest" :disabled="isStarted">Mulai</button>
+              <div class="timer animate__animated animate__backInRight" v-if="isStarted">{{ countdown }}</div>
             </div>
           </div>
           <div class="leaderboard">
@@ -35,6 +37,36 @@
                   <td>Masih</td>
                   <td>Ngoding</td>
                 </tr>
+                <tr>
+                  <td>1</td>
+                  <td>Sabar</td>
+                  <td>Masih</td>
+                  <td>Ngoding</td>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>Sabar</td>
+                  <td>Masih</td>
+                  <td>Ngoding</td>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>Sabar</td>
+                  <td>Masih</td>
+                  <td>Ngoding</td>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>Sabar</td>
+                  <td>Masih</td>
+                  <td>Ngoding</td>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>Sabar</td>
+                  <td>Masih</td>
+                  <td>Ngoding</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -45,6 +77,9 @@
 </template>
 
 <script>
+import swal from 'sweetalert'
+import "animate.css"
+
 export default {
   data() {
     return {
@@ -84,6 +119,21 @@ export default {
     }
   },
   methods: {
+    about() {
+      swal({
+        icon: false,
+        title: 'Capek aseli buatnya',
+        text: '--Radya--',
+        button: 'Okeh'
+      })
+    },
+    login() {
+      swal({
+        icon: 'error',
+        title: 'Belum ada ya',
+        text: 'Kapan adanya? kapan kapan 😂'
+      })
+    },
     setNextPrompt() {
       this.currentPrompt = this.shuffleArray(this.prompts[this.currentPromptIndex]);
       this.currentWordIndex = 0;
@@ -103,17 +153,24 @@ export default {
         this.userInput = "";
         this.howMuchWordType++;
 
-        // Scroll otomatis ke bawah setelah menekan spasi
         this.scrollPrompt();
       }
     },
     scrollPrompt() {
       const promptContainer = document.querySelector('.text');
-      const currentWordElement = promptContainer.querySelector(`span:nth-child(${this.currentWordIndex + 2})`);
+      const currentWordElement = promptContainer.querySelector(`span:nth-child(${this.currentWordIndex + 1})`);
 
       if (currentWordElement) {
-        // Scroll ke bawah setelah kata yang benar diketik
-        promptContainer.scrollTop = currentWordElement.offsetTop - promptContainer.offsetTop;
+        const containerHeight = promptContainer.clientHeight;
+        const currentWordHeight = currentWordElement.clientHeight;
+        const currentWordOffsetTop = currentWordElement.offsetTop;
+
+        const scrollTo = currentWordOffsetTop - containerHeight + currentWordHeight;
+
+        promptContainer.scrollTo({
+          top: scrollTo,
+          behavior: 'smooth',
+        });
       }
     },
     startTest() {
@@ -141,7 +198,12 @@ export default {
       this.isStarted = false;
       clearInterval(this.countdownInterval);
       setTimeout(() => {
-        alert(`Waktu Habis! Kecepatan Mengetik: ${this.howMuchWordType} kata per menit`);
+        swal({
+          icon: false,
+          title: "STOPPP!! Waktu Habis",
+          text: `Hmm kecepatan mengetik kamu adalah ${this.howMuchWordType} WPM (Kata permenit)`,
+          button: 'tutup'
+        })
       }, 0);
     },
 
@@ -156,8 +218,21 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #B6EADA;
+  background-color: #03001C;
   color: #B6EADA;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.timer {
+  width: 50px;
+  height: 50px;
+  background-color: #03001C;
+  position: fixed;
+  right: 100px;
+  border-radius: 50%;
+  border: 1px solid #B6EADA;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -176,14 +251,13 @@ export default {
 }
 
 .header h3 {
-  /* margin-right: 140px; */
-  justify-content: flex-start;
   background-color: #03001C;
   padding: 10px 20px;
   border-radius: 10px 10px 0 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  border-bottom: 1px solid #B6EADA;
 }
 
 .wrapper h3:nth-child(n+2) {
@@ -204,7 +278,7 @@ export default {
 }
 
 .text {
-  /* border: 1px solid black; */
+  /* border: 1px solid red; */
   border-radius: 0 10px 10px 10px;
   width: 100%;
   height: 50%;
@@ -213,11 +287,15 @@ export default {
   display: flex;
   align-items: center;
   overflow-y: scroll;
+  scrollbar-color: #03001C #e0e0e0;
+  scrollbar-width: none;
 }
 
 .text p {
+  /* border: 1px solid yellow; */
   margin-left: 15px;
-  margin-top: 50px;
+  margin-top: 100px;
+  line-height: 2;
 }
 
 .input-text {
@@ -259,7 +337,9 @@ export default {
   background-color: #03001C;
   width: 100%;
   height: 50%;
-  overflow-y: scroll;
+  overflow-y: auto;
+  scrollbar-color: #03001C #e0e0e0;
+  scrollbar-width: auto;
   border-radius: 10px;
 }
 
