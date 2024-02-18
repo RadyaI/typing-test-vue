@@ -72,7 +72,25 @@
           </div>
         </div>
       </div>
+
+      <!-- MODAL -->
+      <div class="modal animate__animated animate__jackInTheBox" v-if="toggleModal">
+        <div class="modal-header">
+          <h2>STOPPP WAKTU HABIS...</h2>
+        </div>
+        <div class="modal-body">
+          <p>Hmm kecepatan mengetik kamu adalah {{ this.howMuchWordType }} WPM (Kata permenit)</p>
+          <br>
+          <p>Kata yang benar: {{ this.correctWord }}</p>
+          <p>Kata yang salah: {{ this.incorrectWord }}</p>
+        </div>
+        <div class="modal-btn">
+          <button class="btn" @click="toggleModal = false">Close</button>
+        </div>
+      </div>
+      <!-- MODAL -->
     </div>
+
   </div>
 </template>
 
@@ -101,9 +119,16 @@ export default {
       endTime: 0,
       errorCount: 0,
       typingSpeed: 0,
-      countdown: 60,
+      countdown: 0,
       maxPromptLines: 2,
+
+      incorrectWord: 0,
+      correctWord: 0,
+      toggleModal: false,
     };
+  },
+  mounted() {
+    console.log(this.currentPrompt[this.currentPromptIndex])
   },
   computed: {
     formattedPrompt() {
@@ -113,7 +138,7 @@ export default {
 
       return [
         ...wordsBeforeCurrent.map((word) => `<span>${word}</span>`),
-        `<span style="color: ${wordsBeforeCurrent.length === this.currentWordIndex ? 'red' : 'inherit'}">${currentWord}</span>`,
+        `<span style="color: ${wordsBeforeCurrent.length === this.currentWordIndex ? 'yellow' : 'none'}">${currentWord}</span>`,
         ...wordsAfterCurrent.map(word => `<span>${word}</span>`)
       ].join(' ');
     }
@@ -149,11 +174,23 @@ export default {
     },
     nextWord() {
       if (this.isStarted && !this.isTimeUp) {
+        this.howMuchWordType++;
+        // INI DIA KATA YANG HARUS DIKETIK
+        this.checkWord()
         this.currentWordIndex = (this.currentWordIndex + 1) % this.currentPrompt.length;
         this.userInput = "";
-        this.howMuchWordType++;
-
         this.scrollPrompt();
+      }
+    },
+    checkWord() {
+      console.log(`Kata yang harus diketik: ${this.currentPrompt[this.currentWordIndex]}`)
+      console.log(`Kata yang sedang diketik: ${this.userInput}`)
+      if (this.currentPrompt[this.currentWordIndex] === this.userInput.trim()) {
+        console.log("Benar")
+        this.correctWord++
+      } else {
+        console.log("Salah")
+        this.incorrectWord++
       }
     },
     scrollPrompt() {
@@ -175,7 +212,6 @@ export default {
     },
     startTest() {
       this.isStarted = true;
-      this.countdown = 60;
       this.isTimeUp = false;
       this.startCountdown();
       this.setNextPrompt();
@@ -197,15 +233,7 @@ export default {
       this.isTimeUp = true;
       this.isStarted = false;
       clearInterval(this.countdownInterval);
-      setTimeout(() => {
-        swal({
-          icon: false,
-          title: "STOPPP!! Waktu Habis",
-          text: `Hmm kecepatan mengetik kamu adalah ${this.howMuchWordType} WPM (Kata permenit)`,
-          button: 'tutup',
-          closeOnClickOutside: false
-        })
-      }, 0);
+      this.toggleModal = true
     },
 
   },
@@ -224,6 +252,55 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.modal {
+  position: fixed;
+  width: 50%;
+  height: 50vh;
+  color: #03001C;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(50px);
+  backdrop-filter: blur(50px);
+  border: 1px solid rgba(255, 255, 255, 0.275);
+}
+
+.modal-header {
+  /* border: 1px solid yellow; */
+  text-align: center;
+  padding-top: 10px;
+  height: 10%;
+}
+
+.modal-body {
+  /* border: 1px solid black; */
+  width: 100%;
+  height: 60%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: bolder;
+}
+
+.modal-btn {
+  /* border: 1px solid red; */
+  height: 20%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.modal-btn .btn {
+  margin-right: 30px;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background-color: #03001C;
+  color: #B6EADA;
+  font-weight: bolder;
+  cursor: pointer;
 }
 
 .timer {
