@@ -3,7 +3,7 @@
     <div class="container">
       <div class="wrapper">
         <div class="header">
-          <h3>Latihan Mengetik</h3>
+          <h3 style="user-select: none; border: 1px solid #B6EADA;">Latihan Mengetik</h3>
           <h3 @click="login">Mau masuk leaderboard? login dulu sini</h3>
           <h3 @click="about">About?</h3>
         </div>
@@ -16,7 +16,7 @@
               <input class="text-form" v-model="userInput" v-if="isStarted" @keyup.space="nextWord"
                 placeholder="Ayo Ketikk.....">
               <button class="btn-mulai" v-if="!isStarted" @click="startTest" :disabled="isStarted">Mulai</button>
-              <div class="timer animate__animated animate__backInRight" v-if="isStarted">{{ countdown }}</div>
+              <div class="timer animate__animated animate__bounceInRight" v-if="isStarted">{{ countdown }}</div>
             </div>
           </div>
           <div class="leaderboard">
@@ -122,7 +122,7 @@ export default {
     about() {
       swal({
         icon: false,
-        title: 'Capek aseli buatnya',
+        title: 'Sulit aseli buatnya',
         text: '--Radya--',
         button: 'Okeh'
       })
@@ -202,7 +202,8 @@ export default {
           icon: false,
           title: "STOPPP!! Waktu Habis",
           text: `Hmm kecepatan mengetik kamu adalah ${this.howMuchWordType} WPM (Kata permenit)`,
-          button: 'tutup'
+          button: 'tutup',
+          closeOnClickOutside: false
         })
       }, 0);
     },
@@ -232,10 +233,11 @@ export default {
   position: fixed;
   right: 100px;
   border-radius: 50%;
-  border: 1px solid #B6EADA;
+  border: 5px solid #B6EADA;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-weight: bolder;
 }
 
 .wrapper {
