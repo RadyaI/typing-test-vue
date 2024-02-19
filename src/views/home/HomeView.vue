@@ -4,7 +4,8 @@
       <div class="wrapper">
         <div class="header">
           <h3 style="user-select: none; border: 1px solid #B6EADA;">Latihan Mengetik</h3>
-          <h3 @click="login">Mau masuk leaderboard? login dulu sini</h3>
+          <h3 @click="login" v-if="!isLoggedIn">Mau masuk leaderboard? login dulu sini</h3>
+          <h3 @click="logout" v-else>Logout</h3>
           <h3 @click="about">About?</h3>
         </div>
         <div class="content">
@@ -97,6 +98,9 @@
 <script>
 import swal from 'sweetalert'
 import "animate.css"
+import { addDoc, collection } from 'firebase/firestore'
+import { db } from '../../firebase.js'
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
 export default {
   data() {
@@ -125,6 +129,8 @@ export default {
       incorrectWord: 0,
       correctWord: 0,
       toggleModal: false,
+
+      isLoggedIn: false,
     };
   },
   mounted() {
@@ -144,19 +150,83 @@ export default {
     }
   },
   methods: {
+    async login() {
+      try {
+        const auth = getAuth();
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        // Simpan data penting ke localStorage
+        localStorage.setItem("user", JSON.stringify({
+          displayName: user.displayName,
+          email: user.email,
+          uid: user.uid,
+          PhotoURL: user.photoURL,
+          providerData: user.providerData,
+          emailVerified: user.emailVerified,
+          phoneNumber: user.phoneNumber
+        }));
+        localStorage.setItem('isLoggedIn', true)
+        this.isLoggedIn = true
+
+        location.reload();
+      } catch (error) {
+        console.error(error.message);
+        swal({
+          icon: 'error',
+          title: 'Login Failed',
+          button: 'waduh'
+        });
+      }
+    },
+    async logout() {
+      const confirm = await swal({
+        icon: 'warning',
+        title: 'Yakin?',
+        buttons: ['Ga deh', 'Iya'],
+        dangerMode: true,
+      })
+      if (confirm) {
+        try {
+          const auth = getAuth();
+          await signOut(auth)
+          this.isLoggedIn = false
+          localStorage.clear()
+          location.reload()
+        } catch (er) {
+          console.log(er)
+          swal({
+            icon: 'error',
+            text: 'Logout Failed',
+          })
+        }
+      }
+    },
+    async sendData() {
+      try {
+        // setTimeout(() => {
+        // Menambahkan data baru ke koleksi "tasks"
+        const data = {
+          name: 'radya',
+          wpm: this.howMuchWordType,
+        }
+        await addDoc(collection(db, 'result'), data);
+
+        // Menambahkan data baru ke array tasks (lokal)
+        // this.tasks.push({ id: docRef.id, ...this.newTask });
+        console.log("berhasil")
+        // }, 1200);
+      } catch (error) {
+        console.error('Error adding task:', error);
+      }
+    },
     about() {
       swal({
         icon: false,
         title: 'Sulit aseli buatnya',
         text: '--Radya--',
         button: 'Okeh'
-      })
-    },
-    login() {
-      swal({
-        icon: 'error',
-        title: 'Belum ada ya',
-        text: 'Kapan adanya? kapan kapan 😂'
       })
     },
     setNextPrompt() {
@@ -217,13 +287,14 @@ export default {
       this.setNextPrompt();
     },
     startCountdown() {
-      this.countdown = 60;
+      this.countdown = 2;
 
       this.countdownInterval = setInterval(() => {
         if (this.countdown > 0) {
           this.countdown--;
         } else {
           this.endTest();
+          this.sendData()
           clearInterval(this.countdownInterval);
         }
       }, 1000);
@@ -271,6 +342,7 @@ export default {
   text-align: center;
   padding-top: 10px;
   height: 10%;
+  font-size: 2rem
 }
 
 .modal-body {
@@ -282,6 +354,10 @@ export default {
   justify-content: center;
   align-items: center;
   font-weight: bolder;
+}
+
+.modal-body p {
+  font-size: 1.4rem
 }
 
 .modal-btn {
