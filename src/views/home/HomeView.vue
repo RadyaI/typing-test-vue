@@ -21,7 +21,7 @@
             </div>
           </div>
           <div class="leaderboard">
-            <p>Yaow ini adalah leaderboard || Nama kamu: {{ userLoginData.displayName }}</p>
+            <p>Yaow ini adalah leaderboard || Nama kamu: {{ userLoginData ? userLoginData.displayName: "Login dulu wak" }}</p>
             <table>
               <thead>
                 <tr>
