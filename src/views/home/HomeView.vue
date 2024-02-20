@@ -75,10 +75,13 @@ import { SpeedInsights } from "@vercel/speed-insights/vue"
 import swal from 'sweetalert'
 import "animate.css"
 import { addDoc, collection, getFirestore, onSnapshot, query, orderBy } from 'firebase/firestore'
-import { db } from '../../firebase.js'
+import { db } from '../../firebase.js'  
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
 export default {
+  components: {
+    SpeedInsights: SpeedInsights
+  },
   data() {
     return {
       prompts: [
