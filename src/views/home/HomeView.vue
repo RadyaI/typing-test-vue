@@ -315,7 +315,9 @@ export default {
       if (this.incorrectWord >= 100) {
         swal({
           icon: false,
-          title: 'Lawak salah lebih dari 100 ULANG!!'
+          title: 'Lawak salah lebih dari 100 ULANG!!',
+          closeOnClickOutside: false,
+          button: "Hehe"
         })
       } else {
         this.isTimeUp = true;
