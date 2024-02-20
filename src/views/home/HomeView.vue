@@ -220,7 +220,8 @@ export default {
         swal({
           icon: 'success',
           title: 'Berhasil Save',
-          button: 'Close'
+          button: 'Close',
+          closeOnClickOutside: false
         }).then(
           (close) => {
             if (close) {
