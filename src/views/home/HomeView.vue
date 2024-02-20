@@ -99,7 +99,7 @@
 import swal from 'sweetalert'
 import "animate.css"
 import { addDoc, collection } from 'firebase/firestore'
-import { db } from '../../cfirebase.js'
+import { db } from '../../firebase.js'
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
 export default {
