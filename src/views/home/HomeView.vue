@@ -32,41 +32,11 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Sabar</td>
-                  <td>Masih</td>
-                  <td>Ngoding</td>
-                </tr>
-                <tr>
-                  <td>1</td>
-                  <td>Sabar</td>
-                  <td>Masih</td>
-                  <td>Ngoding</td>
-                </tr>
-                <tr>
-                  <td>1</td>
-                  <td>Sabar</td>
-                  <td>Masih</td>
-                  <td>Ngoding</td>
-                </tr>
-                <tr>
-                  <td>1</td>
-                  <td>Sabar</td>
-                  <td>Masih</td>
-                  <td>Ngoding</td>
-                </tr>
-                <tr>
-                  <td>1</td>
-                  <td>Sabar</td>
-                  <td>Masih</td>
-                  <td>Ngoding</td>
-                </tr>
-                <tr>
-                  <td>1</td>
-                  <td>Sabar</td>
-                  <td>Masih</td>
-                  <td>Ngoding</td>
+                <tr v-for="(i, no) in leaderboardData" :key="i.id">
+                  <td>{{ no+1 }}</td>
+                  <td>{{ i.name }}</td>
+                  <td>{{i.wpm}}</td>
+                  <td>{{ i.date }}</td>
                 </tr>
               </tbody>
             </table>
@@ -100,7 +70,7 @@
 <script>
 import swal from 'sweetalert'
 import "animate.css"
-import { addDoc, collection, query, orderBy, getFirestore, onSnapshot } from 'firebase/firestore'
+import { addDoc, collection, getFirestore, onSnapshot, query, orderBy } from 'firebase/firestore'
 import { db } from '../../firebase.js'
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
@@ -131,7 +101,7 @@ export default {
       incorrectWord: 0,
       correctWord: 0,
       toggleModal: false,
-      leaderboardData: [],
+      leaderboardData: {},
       userLoginData: JSON.parse(localStorage.getItem('user')),
       isLoggedIn: localStorage.getItem('isLoggedIn'),
     };
@@ -145,15 +115,25 @@ export default {
     // GET RESULT
     const db = getFirestore();
     const chatCollection = collection(db, 'result');
-    console.log({ result: chatCollection })
+
     onSnapshot(query(chatCollection, orderBy('wpm', 'desc')), (snapshot) => {
-      this.leaderboardData = snapshot.docs.map((result) => {
-        const leadData = result.data();
-        return { ...leadData, id: result.id };
-      });
+      this.leaderboardData = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      console.log(this.leaderboardData);
+    }, (error) => {
+      console.error('Error getting real-time updates: ', error);
     });
-    // GET RESULT
+
     console.log(this.leaderboardData)
+
+
+    // console.log({ result: chatCollection })
+    // onSnapshot(query(chatCollection, orderBy('wpm', 'desc')), (snapshot) => {
+    //   this.leaderboardData = snapshot.docs.map((result) => {
+    //     const leadData = result.data();
+    //     return { ...leadData, id: result.id };
+    //   });
+    // });
+    // GET RESULT
   },
   computed: {
     formattedPrompt() {
@@ -311,7 +291,7 @@ export default {
       this.setNextPrompt();
     },
     startCountdown() {
-      this.countdown = 2;
+      this.countdown = 60;
 
       this.countdownInterval = setInterval(() => {
         if (this.countdown > 0) {
