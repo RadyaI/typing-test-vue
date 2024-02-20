@@ -1,5 +1,6 @@
 <template>
   <div>
+    <SpeedInsights/>
     <div class="container">
       <div class="wrapper">
         <div class="header">
@@ -70,6 +71,7 @@
 </template>
 
 <script>
+import { SpeedInsights } from "@vercel/speed-insights/vue"  
 import swal from 'sweetalert'
 import "animate.css"
 import { addDoc, collection, getFirestore, onSnapshot, query, orderBy } from 'firebase/firestore'
