@@ -4,8 +4,8 @@
       <div class="wrapper">
         <div class="header">
           <h3 style="user-select: none; border: 1px solid #B6EADA;">Latihan Mengetik</h3>
-          <h3 @click="login" v-if="!isLoggedIn">Mau masuk leaderboard? login dulu sini</h3>
-          <h3 @click="logout" v-else>Logout</h3>
+          <h3 @click="logout" v-if="isLoggedIn"> Logout </h3>
+          <h3 @click="login" v-else>Mau masuk leaderboard? login dulu sini</h3>
           <h3 @click="about">About?</h3>
         </div>
         <div class="content">
@@ -99,7 +99,7 @@
 import swal from 'sweetalert'
 import "animate.css"
 import { addDoc, collection } from 'firebase/firestore'
-import { db } from '../../firebase.js'
+import { db } from '../../cfirebase.js'
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
 export default {
@@ -130,11 +130,12 @@ export default {
       correctWord: 0,
       toggleModal: false,
 
-      isLoggedIn: false,
+      isLoggedIn: localStorage.getItem('isLoggedIn'),
     };
   },
   mounted() {
     console.log(this.currentPrompt[this.currentPromptIndex])
+    console.log({ status: this.isLoggedIn })
   },
   computed: {
     formattedPrompt() {
@@ -168,9 +169,7 @@ export default {
           phoneNumber: user.phoneNumber
         }));
         localStorage.setItem('isLoggedIn', true)
-        this.isLoggedIn = true
-
-        location.reload();
+        location.reload()
       } catch (error) {
         console.error(error.message);
         swal({
@@ -287,7 +286,7 @@ export default {
       this.setNextPrompt();
     },
     startCountdown() {
-      this.countdown = 2;
+      this.countdown = 60;
 
       this.countdownInterval = setInterval(() => {
         if (this.countdown > 0) {
