@@ -29,7 +29,7 @@
                 <tr>
                   <th>No</th>
                   <th>Nama</th>
-                  <th>WPM</th>
+                  <th>WPM (Kata permenit)</th>
                   <th>Last Update</th>
                 </tr>
               </thead>
