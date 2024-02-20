@@ -85,8 +85,10 @@
           <p>Kata yang benar: {{ this.correctWord }}</p>
           <p>Kata yang salah: {{ this.incorrectWord }}</p>
         </div>
+        <small v-if="!isLoggedIn">*Login dulu kalau mau disave biar masuk leaderboard</small>
         <div class="modal-btn">
           <button class="btn" @click="toggleModal = false">Close</button>
+          <button class="btn" @click="saveResult" v-if="isLoggedIn">Mau disave? </button>
         </div>
       </div>
       <!-- MODAL -->
@@ -98,7 +100,7 @@
 <script>
 import swal from 'sweetalert'
 import "animate.css"
-import { addDoc, collection } from 'firebase/firestore'
+import { addDoc, collection, query, orderBy, getFirestore, onSnapshot } from 'firebase/firestore'
 import { db } from '../../firebase.js'
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
@@ -129,14 +131,29 @@ export default {
       incorrectWord: 0,
       correctWord: 0,
       toggleModal: false,
-
+      leaderboardData: [],
+      userLoginData: JSON.parse(localStorage.getItem('user')),
       isLoggedIn: localStorage.getItem('isLoggedIn'),
     };
   },
   mounted() {
     console.log(this.currentPrompt[this.currentPromptIndex])
     console.log({ status: this.isLoggedIn })
+    // console.log({userData: this.userLoginData})
     // console.log({ key: process.env.VUE_APP_API })
+
+    // GET RESULT
+    const db = getFirestore();
+    const chatCollection = collection(db, 'result');
+    console.log({ result: chatCollection })
+    onSnapshot(query(chatCollection, orderBy('wpm', 'desc')), (snapshot) => {
+      this.leaderboardData = snapshot.docs.map((result) => {
+        const leadData = result.data();
+        return { ...leadData, id: result.id };
+      });
+    });
+    // GET RESULT
+    console.log(this.leaderboardData)
   },
   computed: {
     formattedPrompt() {
@@ -203,19 +220,26 @@ export default {
         }
       }
     },
-    async sendData() {
+    async saveResult() {
       try {
         // setTimeout(() => {
         // Menambahkan data baru ke koleksi "tasks"
         const data = {
-          name: 'radya',
+          name: this.userLoginData.displayName,
+          email: this.userLoginData.email,
           wpm: this.howMuchWordType,
+          date: new Date().toDateString()
         }
         await addDoc(collection(db, 'result'), data);
 
         // Menambahkan data baru ke array tasks (lokal)
         // this.tasks.push({ id: docRef.id, ...this.newTask });
         console.log("berhasil")
+        swal({
+          icon: 'success',
+          title: 'Berhasil Save',
+          button: 'Close'
+        })
         // }, 1200);
       } catch (error) {
         console.error('Error adding task:', error);
@@ -287,14 +311,13 @@ export default {
       this.setNextPrompt();
     },
     startCountdown() {
-      this.countdown = 60;
+      this.countdown = 2;
 
       this.countdownInterval = setInterval(() => {
         if (this.countdown > 0) {
           this.countdown--;
         } else {
           this.endTest();
-          this.sendData()
           clearInterval(this.countdownInterval);
         }
       }, 1000);
