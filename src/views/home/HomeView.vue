@@ -223,7 +223,9 @@ export default {
           button: 'Close'
         }).then(
           (close) => {
-            this.toggleModal = false
+            if (close) {
+              this.toggleModal = false
+            }
           }
         )
         // }, 1200);
