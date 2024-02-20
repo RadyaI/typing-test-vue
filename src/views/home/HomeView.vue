@@ -136,7 +136,7 @@ export default {
   mounted() {
     console.log(this.currentPrompt[this.currentPromptIndex])
     console.log({ status: this.isLoggedIn })
-    console.log({ key: process.env.VUE_APP_API })
+    // console.log({ key: process.env.VUE_APP_API })
   },
   computed: {
     formattedPrompt() {
