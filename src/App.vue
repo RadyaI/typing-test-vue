@@ -1,5 +1,6 @@
 <template>
   <router-view />
+  <SpeedInsights />
 </template>
 
 <style>
@@ -12,11 +13,10 @@
 
 <script>
 import swal from 'sweetalert'
-
+import { SpeedInsights } from "@vercel/speed-insights/vue"
 export default {
   data() {
     return {
-
     }
   },
   mounted() {
