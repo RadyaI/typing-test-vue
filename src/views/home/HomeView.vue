@@ -21,7 +21,9 @@
             </div>
           </div>
           <div class="leaderboard">
-            <p>Yaow ini adalah leaderboard || Nama kamu: {{ userLoginData ? userLoginData.displayName: "Login dulu wak" }}</p>
+            <p>Yaow ini adalah leaderboard || Nama kamu: {{ userLoginData ? userLoginData.displayName : "Login dulu wak"
+            }}
+            </p>
             <table>
               <thead>
                 <tr>
@@ -33,9 +35,9 @@
               </thead>
               <tbody>
                 <tr v-for="(i, no) in leaderboardData" :key="i.id">
-                  <td>{{ no+1 }}</td>
+                  <td>{{ no + 1 }}</td>
                   <td>{{ i.name }}</td>
-                  <td>{{i.wpm}}</td>
+                  <td>{{ i.wpm }}</td>
                   <td>{{ i.date }}</td>
                 </tr>
               </tbody>
@@ -219,7 +221,11 @@ export default {
           icon: 'success',
           title: 'Berhasil Save',
           button: 'Close'
-        })
+        }).then(
+          (close) => {
+            this.toggleModal = false
+          }
+        )
         // }, 1200);
       } catch (error) {
         console.error('Error adding task:', error);
@@ -304,10 +310,17 @@ export default {
     },
 
     endTest() {
-      this.isTimeUp = true;
-      this.isStarted = false;
-      clearInterval(this.countdownInterval);
-      this.toggleModal = true
+      if (this.incorrectWord >= 100) {
+        swal({
+          icon: false,
+          title: 'Lawak salah lebih dari 100 ULANG!!'
+        })
+      } else {
+        this.isTimeUp = true;
+        this.isStarted = false;
+        clearInterval(this.countdownInterval);
+        this.toggleModal = true
+      }
     },
 
   },
