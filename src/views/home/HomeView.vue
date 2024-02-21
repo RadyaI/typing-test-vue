@@ -337,10 +337,10 @@ export default {
     },
 
     endTest() {
-      if (this.incorrectWord >= 100) {
+      if (this.incorrectWord >= 50 || this.correctWord <= 10) {
         swal({
           icon: false,
-          title: 'Lawak salah lebih dari 100 ULANG!!',
+          title: 'Parah dah ckckck',
           closeOnClickOutside: false,
           button: "Hehe"
         })
