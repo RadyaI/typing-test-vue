@@ -1,6 +1,6 @@
 <template>
   <div>
-    <SpeedInsights/>
+    <SpeedInsights />
     <div class="container">
       <div class="wrapper">
         <div class="header">
@@ -32,6 +32,7 @@
                   <th>Nama</th>
                   <th>WPM (Kata permenit)</th>
                   <th>Last Update</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -40,6 +41,7 @@
                   <td>{{ i.name }}</td>
                   <td>{{ i.wpm }}</td>
                   <td>{{ i.date }}</td>
+                  <td><button class="btn-clear" @click="removeResult(i)" v-if="userLoginData.email === i.email">Remove</button></td>
                 </tr>
               </tbody>
             </table>
@@ -71,11 +73,11 @@
 </template>
 
 <script>
-import { SpeedInsights } from "@vercel/speed-insights/vue"  
+import { SpeedInsights } from "@vercel/speed-insights/vue"
 import swal from 'sweetalert'
 import "animate.css"
-import { addDoc, collection, getFirestore, onSnapshot, query, orderBy } from 'firebase/firestore'
-import { db } from '../../firebase.js'  
+import { addDoc, collection, getFirestore, onSnapshot, query, orderBy, doc, deleteDoc } from 'firebase/firestore'
+import { db } from '../../firebase.js'
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
 export default {
@@ -132,14 +134,6 @@ export default {
 
     console.log(this.leaderboardData)
 
-
-    // console.log({ result: chatCollection })
-    // onSnapshot(query(chatCollection, orderBy('wpm', 'desc')), (snapshot) => {
-    //   this.leaderboardData = snapshot.docs.map((result) => {
-    //     const leadData = result.data();
-    //     return { ...leadData, id: result.id };
-    //   });
-    // });
     // GET RESULT
   },
   computed: {
@@ -238,6 +232,31 @@ export default {
       } catch (error) {
         console.error('Error adding task:', error);
       }
+    },
+    async removeResult(i) {
+      const warning = await swal({
+        icon: 'warning',
+        title: 'Yakin mau dihapus?',
+        dangerMode: true,
+        buttons: ['Ga', 'Iya']
+      })
+
+      try {
+        if (warning) {
+          console.log(`Hapus leaderboard dengan id ${i.id}`)
+          const DB = getFirestore()
+          const findDoc = doc(DB, 'result', i.id)
+          await deleteDoc(findDoc)
+          swal({
+            icon: 'success',
+            title: 'Berhasil dihapus',
+            button: 'Oke'
+          })
+        }
+      } catch (r) {
+        console.log(r)
+      }
+
     },
     about() {
       swal({
@@ -507,6 +526,17 @@ export default {
   border-radius: 10px;
   padding: 10px;
   font-size: 1.2rem;
+  font-weight: bolder;
+  cursor: pointer;
+  background-color: #B6EADA;
+  color: #03001C;
+}
+
+.btn-clear {
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 1rem;
   font-weight: bolder;
   cursor: pointer;
   background-color: #B6EADA;
