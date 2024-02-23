@@ -41,7 +41,8 @@
                   <td>{{ i.name }}</td>
                   <td>{{ i.wpm }}</td>
                   <td>{{ i.date }}</td>
-                  <td><button class="btn-clear" @click="removeResult(i)" v-if="userLoginData.email === i.email">Remove</button></td>
+                  <td><button class="btn-clear" @click="removeResult(i)"
+                      v-if="userLoginData.email === i.email">Remove</button></td>
                 </tr>
               </tbody>
             </table>
@@ -91,7 +92,11 @@ export default {
           "bukan", "karena", "kamu", "di", "dan", "mereka", "tidak", "jatuh",
           "bawah", "tahu", "oleh", "kembali", "siap", "memiliki", "dengan", "kamu",
           "anak", "harus", "ada", "baru", "lama", "tinggi", "setiap", "kembali", "mengatakan",
-          "tidak", "harus", "dengan", "pergi", "lama", "bukan", "jam", "mana", "beritahu"],
+          "tidak", "harus", "dengan", "pergi", "lama", "bukan", "jam", "mana", "beritahu", "banyak", "tak",
+          "kini", "tidak", "tentang", " sesuatu", "pada", "sini", "sekitar", "tinggi", "selalu", "terjadi",
+          "seperti", "malam", "jalan", "ada", "belum", "melalui", "tiba", "jika", "sebentar", "lagi",
+          "khusus", "selalu", "tetapi", "kemudian", "tak", "cara", "jumlah", "bahwa", "tahu", "naik", "sebentar",
+          "baik", "bila", "melakukan", "juta", "tiba", "paling", "bisa", "kita"],
       ],
       currentPromptIndex: 0,
       currentPrompt: [],
