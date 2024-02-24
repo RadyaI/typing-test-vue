@@ -8,7 +8,7 @@ import { getFirestore } from "firebase/firestore";
 const firebaseConfig = {
     apiKey: process.env.VUE_APP_API,
     authDomain: "typingmow.firebaseapp.com",
-    projectId: "typingmow", 
+    projectId: "typingmow",
     storageBucket: "typingmow.appspot.com",
     messagingSenderId: "250978096334",
     appId: "1:250978096334:web:ee2e11d7f404d072eb2c9f"

@@ -22,7 +22,7 @@
             </div>
           </div>
           <div class="leaderboard">
-            <p>Yaow ini adalah leaderboard || Nama kamu: {{ userLoginData ? userLoginData.displayName : "Login dulu wak"
+            <p>Yaow ini adalah leaderboard || Nama kamu: {{ isLoggedIn ? userLoginData.displayName : "Login dulu wak"
             }}
             </p>
             <table>
@@ -42,7 +42,9 @@
                   <td>{{ i.wpm }}</td>
                   <td>{{ i.date }}</td>
                   <td><button class="btn-clear" @click="removeResult(i)"
-                      v-if="userLoginData.email === i.email">Remove</button></td>
+                      v-if="userLoginData.email === i.email">Remove</button>
+                    <button class="btn-clear" v-else-if="!isLoggedIn" @click="login">Login dulu broh</button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -62,9 +64,10 @@
           <p>Kata yang salah: {{ this.incorrectWord }}</p>
         </div>
         <small v-if="!isLoggedIn">*Login dulu kalau mau disave biar masuk leaderboard</small>
+        <small v-if="apakahCurang" style="color: red;">Skor anda terlalu parah untuk di save!! ulang aja ya</small>
         <div class="modal-btn">
           <button class="btn" @click="toggleModal = false">Close</button>
-          <button class="btn" @click="saveResult" v-if="isLoggedIn">Mau disave? </button>
+          <button class="btn" @click="saveResult" v-if="isLoggedIn && !apakahCurang">Mau disave?</button>
         </div>
       </div>
       <!-- MODAL -->
@@ -112,11 +115,12 @@ export default {
       countdown: 0,
       maxPromptLines: 2,
 
+      apakahCurang: false,
       incorrectWord: 0,
       correctWord: 0,
       toggleModal: false,
       leaderboardData: {},
-      userLoginData: JSON.parse(localStorage.getItem('user')),
+      userLoginData: localStorage.getItem('isLoggedIn') ? JSON.parse(localStorage.getItem('user')) : 'broNotLogin',
       isLoggedIn: localStorage.getItem('isLoggedIn'),
     };
   },
@@ -327,6 +331,8 @@ export default {
       this.isTimeUp = false;
       this.startCountdown();
       this.setNextPrompt();
+      this.correctWord = 0
+      this.incorrectWord = 0
     },
     startCountdown() {
       this.countdown = 60;
@@ -343,13 +349,13 @@ export default {
 
     endTest() {
       if (this.incorrectWord >= 50 || this.correctWord <= 10) {
-        swal({
-          icon: false,
-          title: 'Parah dah ckckck',
-          closeOnClickOutside: false,
-          button: "Hehe"
-        })
+        this.apakahCurang = true
+        this.isTimeUp = true;
+        this.isStarted = false;
+        clearInterval(this.countdownInterval);
+        this.toggleModal = true
       } else {
+        this.apakahCurang = false
         this.isTimeUp = true;
         this.isStarted = false;
         clearInterval(this.countdownInterval);
@@ -499,7 +505,7 @@ export default {
 .text p {
   /* border: 1px solid yellow; */
   margin-left: 15px;
-  margin-top: 100px;
+  margin-top: 340px;
   line-height: 2;
 }
 
